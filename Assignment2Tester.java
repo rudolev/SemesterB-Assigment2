@@ -27,7 +27,7 @@ public class Assignment2Tester {
     public static void main(String[] args) {
         runSafely("testMyArray", Assignment2Tester::testMyArray);
         runSafely("testMyLinkedList", Assignment2Tester::testMyLinkedList);
-//        runSafely("testMySortedLinkedList", Assignment2Tester::testMySortedLinkedList);
+        runSafely("testMySortedLinkedList", Assignment2Tester::testMySortedLinkedList);
 //        runSafely("testMyAVLTree", Assignment2Tester::testMyAVLTree);
 //        runSafely("testMyDynamicSet", Assignment2Tester::testMyDynamicSet);
 //        runSafely("testMyFirstDataStructure", Assignment2Tester::testMyFirstDataStructure);
