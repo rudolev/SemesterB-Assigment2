@@ -11,6 +11,18 @@ public class MyDynamicSet<T> {
      * 	-	primitive variables
      */
 
+	// TODO - need to remove this function before the submission
+	public ListLink<T> getLinkForKey(int key) {
+		// TODO - chane to this line ListLink<T> current = this.minimumLink;
+		ListLink<T> current = null;
+		while (current != null) {
+			if (current.key() == key)
+				return current;
+			current = current.getNext();
+		}
+		return null;
+	}
+
 
 	/**
 	 * The constructor should initiate an empty dynamic-set.

@@ -16,7 +16,22 @@ public class MyArray<T> {
      * Implement the following method.
      */
     public void reverse() {
-    	throw new UnsupportedOperationException("Delete this line and replace it with your implementation");
+        int start = 0;
+        int end = size() - 1;
+
+        ArrayElement<T> temp = null;
+
+        while (start < end) {
+            temp = array[start];
+            array[start] = array[end];
+            array[start].setIndex(array[end].index());
+            array[end] = temp;
+            array[end].setIndex(temp.index());
+
+            end -= 1;
+            start += 1;
+        }
+
     }
 
     /***
