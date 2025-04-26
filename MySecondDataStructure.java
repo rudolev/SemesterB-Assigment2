@@ -1,77 +1,58 @@
 
 public class MySecondDataStructure {
-    /*
-     * You may add any fields that you wish to add.
-     * Remember that the use of built-in Java classes is not allowed,
-     * the only variables types you can use are:
-     * 	-	the given classes in the assignment
-     * 	-	basic arrays
-     * 	-	primitive variables
-     */
-
-    private final int numOfQualities = 6;
-    private int[] totalRaiseEachQuality;
-    private int[] amountOfEachQuality;
+    private final int numerOfQualities = 6;
+    private int[] currentRaisePerQuality;
+    private int[] qualityCounters;
     private Product[] mostExpensiveOfEachQuality;
     private int size;
     private int sumOfQuality; //for averge
-    private MyArray<Product> main;
+    private MyArray<Product> productsArray;
 
     /***
      * This function is the Init function.
      * @param N The maximum number of elements in the data structure at each time.
      */
     public MySecondDataStructure(int N) {
-        totalRaiseEachQuality = new int[numOfQualities];
-        amountOfEachQuality = new int[numOfQualities];
-        mostExpensiveOfEachQuality = new Product[numOfQualities];
+        currentRaisePerQuality = new int[numerOfQualities];
+        qualityCounters = new int[numerOfQualities];
+        mostExpensiveOfEachQuality = new Product[numerOfQualities];
         size = 0;
         sumOfQuality = 0;
-        main = new MyArray<Product>(N);
-
-        for (int i = 0; i < numOfQualities; i++) {
-            totalRaiseEachQuality[i] = 0;
-            amountOfEachQuality[i] = 0;
-            mostExpensiveOfEachQuality[i] = null;
-        }
+        productsArray = new MyArray<Product>(N);
     }
 
     public void insert(Product product) {
-
-        // Setting the price raised so far
         int prodQuality = product.quality();
-        int amountRaisedSoFar = totalRaiseEachQuality[prodQuality];
+        int amountRaisedSoFar = currentRaisePerQuality[prodQuality];
         product.setPricePrevRaise(amountRaisedSoFar);
 
-        // Adding the product to the array
-        Element<Product> elemToAdd = new Element<>(product.id(), product);
-        main.insert(new ArrayElement<>(elemToAdd));//insert
+        Element<Product> elementToAdd = new Element<>(product.id(), product);
+        productsArray.insert(new ArrayElement<>(elementToAdd));//insert
 
-        // Setting most expensive
-        if (mostExpensiveOfEachQuality[prodQuality] == null) {
-            mostExpensiveOfEachQuality[prodQuality] = product;
-        }
-        // If it is not the first from this quality
-        else {
+        if (mostExpensiveOfEachQuality[prodQuality] != null) {
             Product mostExpensive = mostExpensiveOfEachQuality[prodQuality];
-            int price = mostExpensive.price() + (totalRaiseEachQuality[prodQuality] - mostExpensive.getPricePrevRaise());
-            if (product.price() > price)
+            if (product.price() > calcCurrentPrice(mostExpensive))
                 mostExpensiveOfEachQuality[prodQuality] = product;
         }
+        else
+            mostExpensiveOfEachQuality[prodQuality] = product;
 
-        // Update size sum and amount from quality
-        amountOfEachQuality[prodQuality]++;
+        qualityCounters[prodQuality]++;
         size++;
         sumOfQuality += prodQuality;
+    }
+
+    private int calcCurrentPrice(Product product) {
+        return product.price() + currentRaisePerQuality[product.quality()] - product.getPricePrevRaise();
     }
 
     private Product findMaximum(int quality) {
         int maxPrice = -1;
         Product maxPriceProduct = null;
-        for (int i = 0; i < main.size(); i++) {
-            Product currentProduct = main.get(i).satelliteData();
+        for (int i = 0; i < productsArray.size(); i++) {
+            Product currentProduct = productsArray.get(i).satelliteData();
             if (currentProduct.quality() == quality) {
-                int currentPrice = currentProduct.price() + totalRaiseEachQuality[currentProduct.quality()] - currentProduct.getPricePrevRaise();
+                int currentPrice = calcCurrentPrice(currentProduct);
                 if (currentPrice > maxPrice) {
                     maxPrice = currentPrice;
                     maxPriceProduct = currentProduct;
@@ -83,20 +64,24 @@ public class MySecondDataStructure {
     }
 
     public void findAndRemove(int id) {
-        ArrayElement<Product> delete = main.search(id);
+        ArrayElement<Product> toRemove = productsArray.search(id);
 
-        if (delete != null) {
-            main.delete(delete);
-            size--;
-            sumOfQuality = sumOfQuality - delete.satelliteData().quality();
-            amountOfEachQuality[delete.satelliteData().quality()]--;
+        if (toRemove == null)
+            return;
 
-            if (delete.satelliteData().equals(mostExpensiveOfEachQuality[delete.satelliteData().quality()])) {
-                if (amountOfEachQuality[delete.satelliteData().quality()] == 0)
-                    mostExpensiveOfEachQuality[delete.satelliteData().quality()] = null;
-                else
-                    mostExpensiveOfEachQuality[delete.satelliteData().quality()] = findMaximum(delete.satelliteData().quality());
-            }
+        productsArray.delete(toRemove);
+        size = size - 1;
+
+        int toRemoveQuality = toRemove.satelliteData().quality();
+
+        sumOfQuality = sumOfQuality - toRemoveQuality;
+        qualityCounters[toRemoveQuality]--;
+
+        if (toRemove.satelliteData().equals(mostExpensiveOfEachQuality[toRemoveQuality])) {
+            if (qualityCounters[toRemove.satelliteData().quality()] == 0)
+                mostExpensiveOfEachQuality[toRemoveQuality] = null;
+            else
+                mostExpensiveOfEachQuality[toRemoveQuality] = findMaximum(toRemove.satelliteData().quality());
         }
     }
 
@@ -107,12 +92,11 @@ public class MySecondDataStructure {
         int median = size / 2;
         int i = 0;
 
-        // Rounding up the middle
         if (size % 2 != 0)
             median++;
 
         while (median > 0) {
-            median = median - amountOfEachQuality[i];
+            median = median - qualityCounters[i];
             i++;
         }
         return i - 1;
@@ -125,7 +109,7 @@ public class MySecondDataStructure {
     }
 
     public void raisePrice(int raise, int quality) {
-        totalRaiseEachQuality[quality] += raise;
+        currentRaisePerQuality[quality] += raise;
     }
 
     public Product mostExpensive() {
@@ -135,13 +119,13 @@ public class MySecondDataStructure {
         int maxPrice = -1;
         Product maxProduct = null;
 
-        for (int i = 0; i < numOfQualities; i++) {
+        for (int i = 0; i < numerOfQualities; i++) {
             if (mostExpensiveOfEachQuality[i] != null) {
-                Product temp = mostExpensiveOfEachQuality[i];
-                int price = temp.price() + (totalRaiseEachQuality[i] - temp.getPricePrevRaise());
+                Product currentMostExpensive = mostExpensiveOfEachQuality[i];
+                int price = currentMostExpensive.price() + (currentRaisePerQuality[i] - currentMostExpensive.getPricePrevRaise());
                 if (maxPrice < price) {
                     maxPrice = price;
-                    maxProduct = temp;
+                    maxProduct = currentMostExpensive;
                 }
             }
         }
