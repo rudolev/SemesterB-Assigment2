@@ -176,12 +176,28 @@ public class MyAVLTree<T> {
     	}	 	    	
     }
 
+    public TreeNode<T> leftMostNode() {
+        return minValueNode(root);
+    }
+
+    public TreeNode<T> rightMostNode() {
+        return maxValueNode(root);
+    }
+
     private TreeNode<T> minValueNode(TreeNode<T> root){
     	TreeNode<T> curr = root;
     	while (curr.getLeft() != null) {
     		curr = curr.getLeft();
     	}
     	return curr;
+    }
+
+    private TreeNode<T> maxValueNode(TreeNode<T> root){
+        TreeNode<T> curr = root;
+        while (curr.getRight() != null) {
+            curr = curr.getRight();
+        }
+        return curr;
     }
 
      // Search for a key in the tree

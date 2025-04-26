@@ -27,7 +27,7 @@ public class MySecondDataStructure {
         product.setPricePrevRaise(amountRaisedSoFar);
 
         Element<Product> elementToAdd = new Element<>(product.id(), product);
-        productsArray.insert(new ArrayElement<>(elementToAdd));//insert
+        productsArray.insert(new ArrayElement<>(elementToAdd));
 
         if (mostExpensiveOfEachQuality[prodQuality] != null) {
             Product mostExpensive = mostExpensiveOfEachQuality[prodQuality];

@@ -11,32 +11,67 @@ public class MyFirstDataStructure<T> {
      * 	-	primitive variables
      */
 
+	private MyAVLTree<T> byKeyTree = null;
+	private MyAVLTree<T> byInsertOrderTree = null;
+	private Element<T> maxElement = null;
+	private Element<T> first = null;
+	private Element<T> last = null;
+	private int insertCounter = 0;
+
 	/***
      * This function is the Init function.
 	 * @param N The maximum number of elements in the data structure at each time.
      */
 	public MyFirstDataStructure(int N) {
-		throw new UnsupportedOperationException("Delete this line and replace it with your implementation");
+		byKeyTree = new MyAVLTree<>();
+		byInsertOrderTree = new MyAVLTree<>();
 	}
 	
 	public void insert(Element<T> x) {
-		throw new UnsupportedOperationException("Delete this line and replace it with your implementation");
+		TreeNode<T> elem = new TreeNode<>(x);
+		TreeNode<T> elemByOrder = new TreeNode<>(insertCounter, x.satelliteData());
+
+		elemByOrder.setLinkedNode(elem);
+		elem.setLinkedNode(elemByOrder);
+
+		byKeyTree.insert(elem);
+		byInsertOrderTree.insert(elemByOrder);
+
+		if (maxElement == null)
+			maxElement = elem;
+		else {
+			if (maxElement.key() < elem.key()) {
+				maxElement = elem;
+			}
+		}
+
+		if (first == null)
+			first = elem;
+
+		last = elem;
 	}
 	
 	public void findAndRemove(int k) {
-		throw new UnsupportedOperationException("Delete this line and replace it with your implementation");
+		TreeNode<T> toRemoveByKey = byKeyTree.search(k);
+		byKeyTree.delete(toRemoveByKey);
+		maxElement = byKeyTree.rightMostNode();
+
+		byInsertOrderTree.delete(toRemoveByKey.getLinkedNode());
+
+		first = byInsertOrderTree.leftMostNode().getLinkedNode();
+		last = byInsertOrderTree.rightMostNode().getLinkedNode();
 	}
 
 	public Element<T> maximum() {
-		throw new UnsupportedOperationException("Delete this line and replace it with your implementation");
+		return maxElement;
 	}
 
 	public Element<T> first() {
-		throw new UnsupportedOperationException("Delete this line and replace it with your implementation");
+		return first;
 	}
 
 	public Element<T> last() {
-		throw new UnsupportedOperationException("Delete this line and replace it with your implementation");
+		return last;
 	}
 
 }
