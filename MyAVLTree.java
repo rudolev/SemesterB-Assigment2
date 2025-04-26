@@ -13,15 +13,16 @@ public class MyAVLTree<T> {
             return -1;
         }
 
+        int depthCounter = 1;
         TreeNode<T> current = root;
         while (current.getLeft() != null) {
             current = current.getLeft();
+            depthCounter += 1;
         }
 
-        return current.key();
+        return depthCounter;
     }
-    
-    
+
     /***
      * Insert a node into the tree.
      * Assumes valid input (not null).
