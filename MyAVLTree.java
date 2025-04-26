@@ -13,7 +13,7 @@ public class MyAVLTree<T> {
             return -1;
         }
 
-        int depthCounter = 1;
+        int depthCounter = 0;
         TreeNode<T> current = root;
         while (current.getLeft() != null) {
             current = current.getLeft();

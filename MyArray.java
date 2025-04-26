@@ -23,10 +23,12 @@ public class MyArray<T> {
 
         while (start < end) {
             temp = array[start];
+
             array[start] = array[end];
-            array[start].setIndex(array[end].index());
+            array[start].setIndex(start);
+
             array[end] = temp;
-            array[end].setIndex(temp.index());
+            array[end].setIndex(end);
 
             end -= 1;
             start += 1;
