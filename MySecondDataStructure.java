@@ -1,135 +1,98 @@
+import java.util.LinkedList;
 
-public class MySecondDataStructure {
-    private final int numerOfQualities = 6;
-    private int[] currentRaisePerQuality;
-    private int[] qualityCounters;
-    private Product[] mostExpensiveOfEachQuality;
-    private int size;
-    private int sumOfQuality; //for averge
-    private MyArray<Product> productsArray;
+class MySecondDataStructure {
+    private LinkedList<Product> products;
+    private int[] qualityCount;
+    private int[] priceIncrement;
+    private int totalQuality;
+    private int totalCount;
+    private Product maxPriceProduct;
 
-    /***
-     * This function is the Init function.
-     * @param N The maximum number of elements in the data structure at each time.
-     */
     public MySecondDataStructure(int N) {
-        currentRaisePerQuality = new int[numerOfQualities];
-        qualityCounters = new int[numerOfQualities];
-        mostExpensiveOfEachQuality = new Product[numerOfQualities];
-        size = 0;
-        sumOfQuality = 0;
-        productsArray = new MyArray<Product>(N);
+        products = new LinkedList<>();
+        qualityCount = new int[6];
+        priceIncrement = new int[6];
+        totalQuality = 0;
+        totalCount = 0;
+        maxPriceProduct = null;
     }
 
     public void insert(Product product) {
-        int prodQuality = product.quality();
-        int amountRaisedSoFar = currentRaisePerQuality[prodQuality];
-        product.setPricePrevRaise(amountRaisedSoFar);
+        products.add(product);
+        qualityCount[product.quality()]++;
+        totalQuality += product.quality();
+        totalCount++;
 
-        Element<Product> elementToAdd = new Element<>(product.id(), product);
-        productsArray.insert(new ArrayElement<>(elementToAdd));
-
-        if (mostExpensiveOfEachQuality[prodQuality] != null) {
-            Product mostExpensive = mostExpensiveOfEachQuality[prodQuality];
-            if (product.price() > calcCurrentPrice(mostExpensive))
-                mostExpensiveOfEachQuality[prodQuality] = product;
+        if (maxPriceProduct == null || getEffectivePrice(product) > getEffectivePrice(maxPriceProduct)) {
+            maxPriceProduct = product;
         }
-        else
-            mostExpensiveOfEachQuality[prodQuality] = product;
-
-        qualityCounters[prodQuality]++;
-        size++;
-        sumOfQuality += prodQuality;
-    }
-
-    private int calcCurrentPrice(Product product) {
-        return product.price() + currentRaisePerQuality[product.quality()] - product.getPricePrevRaise();
-    }
-
-    private Product findMaximum(int quality) {
-        int maxPrice = -1;
-        Product maxPriceProduct = null;
-        for (int i = 0; i < productsArray.size(); i++) {
-            Product currentProduct = productsArray.get(i).satelliteData();
-            if (currentProduct.quality() == quality) {
-                int currentPrice = calcCurrentPrice(currentProduct);
-                if (currentPrice > maxPrice) {
-                    maxPrice = currentPrice;
-                    maxPriceProduct = currentProduct;
-                }
-            }
-        }
-
-        return maxPriceProduct;
     }
 
     public void findAndRemove(int id) {
-        ArrayElement<Product> toRemove = productsArray.search(id);
+        Product toRemove = null;
 
-        if (toRemove == null)
-            return;
+        for (Product p : products) {
+            if (p.id() == id) {
+                toRemove = p;
+                break;
+            }
+        }
 
-        productsArray.delete(toRemove);
-        size = size - 1;
+        if (toRemove != null) {
+            products.remove(toRemove);
+            qualityCount[toRemove.quality()]--;
+            totalQuality -= toRemove.quality();
+            totalCount--;
 
-        int toRemoveQuality = toRemove.satelliteData().quality();
-
-        sumOfQuality = sumOfQuality - toRemoveQuality;
-        qualityCounters[toRemoveQuality]--;
-
-        if (toRemove.satelliteData().equals(mostExpensiveOfEachQuality[toRemoveQuality])) {
-            if (qualityCounters[toRemove.satelliteData().quality()] == 0)
-                mostExpensiveOfEachQuality[toRemoveQuality] = null;
-            else
-                mostExpensiveOfEachQuality[toRemoveQuality] = findMaximum(toRemove.satelliteData().quality());
+            if (maxPriceProduct != null && maxPriceProduct.id() == id) {
+                maxPriceProduct = null;
+                for (Product p : products) {
+                    if (maxPriceProduct == null || getEffectivePrice(p) > getEffectivePrice(maxPriceProduct)) {
+                        maxPriceProduct = p;
+                    }
+                }
+            }
         }
     }
 
     public int medianQuality() {
-        if (size == 0)
-            return -1;
+        if (totalCount == 0) return -1;
 
-        int median = size / 2;
-        int i = 0;
-
-        if (size % 2 != 0)
-            median++;
-
-        while (median > 0) {
-            median = median - qualityCounters[i];
-            i++;
+        int mid = (totalCount + 1) / 2;
+        int sum = 0;
+        for (int i = 0; i <= 5; i++) {
+            sum += qualityCount[i];
+            if (sum >= mid) return i;
         }
-        return i - 1;
+        return -1;
     }
 
     public double avgQuality() {
-        if (size == 0)
-            return -1;
-        return (double) sumOfQuality / size;
+        if (totalCount == 0) return -1;
+        return (double) totalQuality / totalCount;
     }
 
     public void raisePrice(int raise, int quality) {
-        currentRaisePerQuality[quality] += raise;
-    }
+        priceIncrement[quality] += raise;
 
-    public Product mostExpensive() {
-        if (size == 0)
-            return null;
-
-        int maxPrice = -1;
-        Product maxProduct = null;
-
-        for (int i = 0; i < numerOfQualities; i++) {
-            if (mostExpensiveOfEachQuality[i] != null) {
-                Product currentMostExpensive = mostExpensiveOfEachQuality[i];
-                int price = currentMostExpensive.price() + (currentRaisePerQuality[i] - currentMostExpensive.getPricePrevRaise());
-                if (maxPrice < price) {
-                    maxPrice = price;
-                    maxProduct = currentMostExpensive;
+        if (maxPriceProduct != null && maxPriceProduct.quality() == quality) {
+            maxPriceProduct = null;
+            for (Product p : products) {
+                if (maxPriceProduct == null || getEffectivePrice(p) > getEffectivePrice(maxPriceProduct)) {
+                    maxPriceProduct = p;
                 }
             }
         }
-        return maxProduct;
     }
 
+    public Product mostExpensive() {
+        if (maxPriceProduct == null) return null;
+
+        Product p = maxPriceProduct;
+        return new Product(p.id(), p.quality(), getEffectivePrice(p), p.name());
+    }
+
+    private int getEffectivePrice(Product p) {
+        return p.price() + priceIncrement[p.quality()];
+    }
 }

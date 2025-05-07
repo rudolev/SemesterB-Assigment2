@@ -7,22 +7,12 @@ public class Product {
     private int quality;
     private int price;
     private String name;
-    private int pricePrevRaise;
-
 
     public Product(int id, int quality, int price, String name) {
         this.id = id;
         this.quality = quality;
         this.price = price;
         this.name = name;
-    }
-
-    public void setPricePrevRaise(int amountRaisedSoFar) {
-        this.pricePrevRaise = amountRaisedSoFar;
-    }
-
-    public int getPricePrevRaise() {
-        return this.pricePrevRaise;
     }
 
     public int id() {
