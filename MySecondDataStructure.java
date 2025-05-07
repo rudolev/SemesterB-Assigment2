@@ -1,7 +1,5 @@
-import java.util.LinkedList;
-
 class MySecondDataStructure {
-    private LinkedList<Product> products;
+    private MyLinkedList<Product> products;
     private int[] qualityCount;
     private int[] priceIncrement;
     private int totalQuality;
@@ -9,7 +7,7 @@ class MySecondDataStructure {
     private Product maxPriceProduct;
 
     public MySecondDataStructure(int N) {
-        products = new LinkedList<>();
+        products = new MyLinkedList<>();
         qualityCount = new int[6];
         priceIncrement = new int[6];
         totalQuality = 0;
@@ -18,10 +16,10 @@ class MySecondDataStructure {
     }
 
     public void insert(Product product) {
-        products.add(product);
+        products.insert(new ListLink<Product>(product.id(), product));
         qualityCount[product.quality()]++;
         totalQuality += product.quality();
-        totalCount++;
+        totalCount = totalCount + 1;
 
         if (maxPriceProduct == null || getEffectivePrice(product) > getEffectivePrice(maxPriceProduct)) {
             maxPriceProduct = product;
@@ -29,27 +27,25 @@ class MySecondDataStructure {
     }
 
     public void findAndRemove(int id) {
-        Product toRemove = null;
+        ListLink<Product> toRemoveLink = products.search(id);
 
-        for (Product p : products) {
-            if (p.id() == id) {
-                toRemove = p;
-                break;
-            }
-        }
-
-        if (toRemove != null) {
-            products.remove(toRemove);
+        if (toRemoveLink != null) {
+            Product toRemove = toRemoveLink.satelliteData();
+            products.delete(toRemoveLink);
             qualityCount[toRemove.quality()]--;
             totalQuality -= toRemove.quality();
             totalCount--;
 
             if (maxPriceProduct != null && maxPriceProduct.id() == id) {
                 maxPriceProduct = null;
-                for (Product p : products) {
-                    if (maxPriceProduct == null || getEffectivePrice(p) > getEffectivePrice(maxPriceProduct)) {
-                        maxPriceProduct = p;
+                ListLink<Product> currentLink = products.head();
+                while (currentLink != null) {
+                    Product currentProduct = currentLink.satelliteData();
+                    if (maxPriceProduct == null || getEffectivePrice(currentProduct) > getEffectivePrice(maxPriceProduct)) {
+                        maxPriceProduct = currentProduct;
                     }
+
+                    currentLink = currentLink.getNext();
                 }
             }
         }
